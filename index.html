@@ -86,14 +86,8 @@
   <input type="text" id="desc" placeholder="Mô Tả Module" />
 </div>
 
-<div class="form-group">
-  <label for="filename">Đặt Tên File (không cần .yaml):</label>
-  <input type="text" id="filename" placeholder="vd: module_cua_ban" />
-</div>
-
 <button onclick="convert()">Chuyển Đổi</button>
 <button onclick="copyYAML()">Copy YAML</button>
-<button onclick="downloadYAML()">Tải YAML</button>
 <button onclick="clearInput()">Xoá Nội Dung</button>
 
 <h3>Kết quả YAML:</h3>
@@ -117,7 +111,7 @@
           .split("=")[1]
           .replace(/%APPEND%/gi, '')
           .split(",")
-          .map(x => x.trim())
+          .map(x => `"${x.trim()}"`) // 👉 thêm dấu ngoặc kép ở đây
           .filter(Boolean);
         mitm.push(...rawHosts);
       }
@@ -126,7 +120,6 @@
         let [key] = line.split("=");
         const rawMatch = line.match(/pattern=([^\s,]+)/)?.[1] || "";
 
-        // Fix thiếu dấu )
         let match = rawMatch;
         const openParens = (match.match(/\(/g) || []).length;
         const closeParens = (match.match(/\)/g) || []).length;
@@ -178,24 +171,6 @@
   function copyYAML() {
     navigator.clipboard.writeText(document.getElementById("output").value);
     alert("Đã copy YAML rồi đóa!");
-  }
-
-  function downloadYAML() {
-    const yamlText = document.getElementById("output").value;
-    const filename = document.getElementById("filename").value.trim() || "module";
-
-    if (!yamlText) {
-      alert("Không có nội dung YAML để tải!");
-      return;
-    }
-
-    const blob = new Blob([yamlText], { type: "text/yaml;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename + ".yaml";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 
   function clearInput() {
